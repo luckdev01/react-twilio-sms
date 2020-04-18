@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Button } from 'reactstrap';
 import './SMSForm.css';
 
 const SMSForm = () => {
@@ -85,9 +86,9 @@ const SMSForm = () => {
           <span>{error}</span>
         </div>
       )}
-      <button type="submit" disabled={submitting}>
+      <Button type="submit" color="primary" disabled={submitting}>
         Send message
-      </button>
+      </Button>
     </form>
   );
 };
