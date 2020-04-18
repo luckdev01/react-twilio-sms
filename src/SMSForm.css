@@ -1,6 +1,7 @@
 .sms-form {
   text-align: left;
   padding: 1em;
+  width: 500px;
 }
 .sms-form label {
   display: block;
@@ -11,6 +12,9 @@
   width: 100%;
   box-sizing: border-box;
 }
+.sms-form textarea {
+  height: 200px;
+}
 .sms-form div {
   margin-bottom: 0.5em;
 }
@@ -20,4 +24,8 @@
 }
 .sms-form.error {
   outline: 2px solid #f00;
+}
+.sms-form div span {
+  color: red;
+  font-size: medium;
 }

@@ -1,89 +1,95 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import './SMSForm.css';
 
-class SMSForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      message: {
-        to: '',
-        body: ''
-      },
-      submitting: false,
-      error: false
-    };
-    this.onSubmit = this.onSubmit.bind(this);
-    this.onHandleChange = this.onHandleChange.bind(this);
-  }
+const SMSForm = () => {
+  const [message, setMessage] = useState({
+    to: '',
+    body: ''
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  onSubmit(event) {
+  const validate = () => {
+    if (!message.to) {
+      setError('Target Phone number is missing.');
+    } else if (!message.body) {
+      setError('Message body is empty.');
+    } else {
+      return true;
+    }
+
+    return false;
+  };
+
+  const onSubmit = event => {
     event.preventDefault();
-    this.setState({ submitting: true });
+
+    if (!validate()) {
+      return;
+    }
+
+    setError('');
+    setSubmitting(true);
     fetch('/api/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify(this.state.message)
+      body: JSON.stringify(message)
     })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          this.setState({
-            error: false,
-            submitting: false,
-            message: {
-              to: '',
-              body: ''
-            }
+          setError('');
+          setSubmitting(false);
+          setMessage({
+            to: '',
+            body: ''
           });
         } else {
-          this.setState({
-            error: true,
-            submitting: false
-          });
+          setError(data.message);
+          setSubmitting(false);
         }
       });
-  }
+  };
 
-  onHandleChange(event) {
+  const onHandleChange = event => {
     const name = event.target.getAttribute('name');
-    this.setState({
-      message: { ...this.state.message, [name]: event.target.value }
-    });
-  }
+    setMessage({ ...message, [name]: event.target.value });
+    setError('');
+  };
 
-  render() {
-    return (
-      <form
-        onSubmit={this.onSubmit}
-        className={this.state.error ? 'error sms-form' : 'sms-form'}
-      >
+  return (
+    <form onSubmit={onSubmit} className={'sms-form'}>
+      <div>
+        <label htmlFor="to">To:</label>
+        <input
+          type="tel"
+          name="to"
+          id="to"
+          value={message.to}
+          onChange={onHandleChange}
+        />
+      </div>
+      <div>
+        <label htmlFor="body">Body:</label>
+        <textarea
+          name="body"
+          id="body"
+          value={message.body}
+          onChange={onHandleChange}
+        />
+      </div>
+      {error && (
         <div>
-          <label htmlFor="to">To:</label>
-          <input
-            type="tel"
-            name="to"
-            id="to"
-            value={this.state.message.to}
-            onChange={this.onHandleChange}
-          />
+          <span>{error}</span>
         </div>
-        <div>
-          <label htmlFor="body">Body:</label>
-          <textarea
-            name="body"
-            id="body"
-            value={this.state.message.body}
-            onChange={this.onHandleChange}
-          />
-        </div>
-        <button type="submit" disabled={this.state.submitting}>
-          Send message
-        </button>
-      </form>
-    );
-  }
-}
+      )}
+      <button type="submit" disabled={submitting}>
+        Send message
+      </button>
+    </form>
+  );
+};
 
 export default SMSForm;
